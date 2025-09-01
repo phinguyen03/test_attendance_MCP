@@ -28,7 +28,6 @@ db = [
     {"id": 3, "name": "Charlie", "status": "Present"}
 ]
 
-items = []
 
 @app.get("/")
 def read_root():
