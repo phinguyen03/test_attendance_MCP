@@ -1,0 +1,65 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
+from fastapi.openapi.utils import get_openapi
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+
+
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or restrict to Copilot domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class Attendance(BaseModel):
+    id: int
+    name: str
+    status: str
+
+db = [
+    {"id": 1, "name": "Alice", "status": "Present"},
+    {"id": 2, "name": "Bob", "status": "Absent"},
+    {"id": 3, "name": "Charlie", "status": "Present"}
+]
+
+items = []
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Employee Attendance API"}
+
+@app.get("/employee", response_model=List[Attendance], response_class=JSONResponse)
+def list_employee():
+    return db
+    
+# --- GET Endpoint: Fetch single employee ---
+
+@app.get("/employee/{employee_id}", response_model=Attendance, response_class=JSONResponse)
+def read_employee(employee_id: int):
+    for employee in db:
+        if employee["id"] == employee_id:
+            return employee
+    raise HTTPException(status_code=404, detail="Employee not found")
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description="Attendance API for MCP integration",
+        routes=app.routes,
+    )
+    # Force spec version to 3.0.0 instead of 3.1.0
+    openapi_schema["openapi"] = "3.0.0"
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
