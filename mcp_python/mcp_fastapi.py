@@ -18,14 +18,15 @@ app.add_middleware(
 )
 
 class Attendance(BaseModel):
-    id: int
     name: str
+    email: str
+    attendance_date: str
     status: str
 
 db = [
-    {"id": 1, "name": "Alice", "status": "Present"},
-    {"id": 2, "name": "Bob", "status": "Absent"},
-    {"id": 3, "name": "Charlie", "status": "Present"}
+    {"name": "Jack", "email": "jack@gmail.com", "attendance_date": "8/20/2025" ,"status": "Present"},
+    {"name": "Bob", "email": "bob@gmail.com", "attendance_date": "8/20/2025" ,"status": "Absent"},
+    {"name": "Charlie", "email": "charlie@gmail.com", "attendance_date": "8/20/2025" ,"status": "Present"}
 ]
 
 
@@ -39,10 +40,10 @@ def list_employee():
     
 # --- GET Endpoint: Fetch single employee ---
 
-@app.get("/employee/{employee_id}", response_model=Attendance, response_class=JSONResponse)
-def read_employee(employee_id: int):
+@app.get("/employee/{employee_name}", response_model=Attendance, response_class=JSONResponse)
+def read_employee(employee_name: str):
     for employee in db:
-        if employee["id"] == employee_id:
+        if employee["name"] == employee_name:
             return employee
     raise HTTPException(status_code=404, detail="Employee not found")
 
